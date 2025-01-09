@@ -1,27 +1,22 @@
-# remediation.sh
 #!/bin/bash
-# Remediate exposed credentials using Vault dynamic secrets
+# Rotate exposed credentials using Vault
 export VAULT_ADDR='http://127.0.0.1:8200'
+vault <Vault token> # Replace with the actual root token
 
-# Authenticate with Vault
-vault login <VAULT_ROOT_TOKEN>
-
-# Rotate IAM credentials
-echo "Generating new IAM credentials using Vault..."
+echo "Generating new credentials using Vault..."
 vault read aws/creds/ec2-role > new-creds.txt
 
 NEW_ACCESS_KEY=$(grep access_key new-creds.txt | awk '{print $2}')
 NEW_SECRET_KEY=$(grep secret_key new-creds.txt | awk '{print $2}')
 
-# Update AWS CLI configuration
+echo "Updating AWS CLI with new credentials..."
 aws configure set aws_access_key_id $NEW_ACCESS_KEY
 aws configure set aws_secret_access_key $NEW_SECRET_KEY
 
-# Verify remediation
-echo "New credentials have been configured. Verifying access..."
+echo "New credentials configured. Verifying..."
 aws s3 ls
 
-# Revoke old IAM credentials in Vault to ensure they are no longer valid
-echo "Revoking old IAM credentials in Vault..."
-vault lease revoke -prefix aws/creds/ec2-role
-echo "Old credentials revoked successfully."
+echo "Revoking old credentials..."
+vault lease revoke aws/creds/ec2-role
+
+echo "Rotation complete. Old credentials revoked."

@@ -73,15 +73,23 @@ ps:
    ```bash
    vault server -dev
    ```
-
 2. Initialize and unseal Vault:
    ```bash
    ./vault-setup.sh
    ```
 
+   After running your script,to ensure ```VAULT_ADDR``` is explicitly set to use ```HTTP``` in your terminal session:
+
+   ```
+   export VAULT_ADDR='http://127.0.0.1:8200'
+   ```
+   check vault status
+   ```
+   vault status
+   ```
 3. Verify AWS secrets engine setup in Vault:
    ```bash
-   vault list aws/
+   vault read aws/config/root
    ```
 
 ---

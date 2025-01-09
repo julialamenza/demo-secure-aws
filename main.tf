@@ -7,7 +7,7 @@ resource "aws_instance" "secure_instance" {
   tags = {
     Name = "Secure-EC2"
   }
-
+}
 
 resource "aws_ebs_volume" "secure_volume" {
   availability_zone = aws_instance.secure_instance.availability_zone
@@ -77,7 +77,19 @@ resource "aws_cloudtrail" "trail" {
   s3_bucket_name                = aws_s3_bucket.cloudtrail.bucket
   include_global_service_events = true
   is_multi_region_trail         = true
+  enable_logging                = true
+    event_selector {
+    read_write_type = "All"
+    include_management_events = true
+
+    # Log all S3 bucket events
+    data_resource {
+      type = "AWS::S3::Object"
+      values = ["arn:aws:s3:::*"]
+    }
+    }
 }
+
 
 resource "aws_s3_bucket" "cloudtrail" {
   bucket = "cloudtrail-logs-${random_id.bucket_id.hex}"
