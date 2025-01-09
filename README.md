@@ -17,7 +17,7 @@ This demo showcases how to secure AWS resources, remediate credential exposure, 
 - **Terraform**: [Download](https://www.terraform.io/downloads)
 - **Vault**: [Download](https://www.vaultproject.io/downloads)
 - **AWS CLI**: [Install](https://aws.amazon.com/cli/)
-- **Veeam Backup for AWS**: Installed and configured.
+- **Veeam Backup for AWS**: [Deployed and configured in the AWS account](https://helpcenter.veeam.com/docs/vbaws/guide/deployment.htm)
 
 ### AWS Account Requirements:
 - Access to create and manage resources in AWS (IAM, EC2, S3, CloudTrail, etc.).
@@ -107,24 +107,17 @@ ps:
 
 ---
 
-### Step 7: Configure Veeam for Backup and Restore
-1. Set up **Veeam Backup for AWS**:
-   - Add the AWS account to Veeam.
-   - Create a backup policy for EC2 and EBS resources.
+### Step 7: Configure Veeam Backup for AWS for Backup and Restore
+1. Create a backup policy for EC2 and EBS resources.
 
 2. Trigger a manual backup and verify it.
 
-3. Simulate a restore of the EC2 instance or EBS volume.
+3. Simulate a restore of the EC2 instance, EBS volume, or files to the same AWS account, a different account, or even another cloud provider.
 
 ---
 
 ### Use Case: `backup-plan.tf`
-If Veeam Backup for AWS is not available or is not configured, you can use the `backup-plan.tf` file as a fallback or alternative to ensure that backups are still automated and managed directly via AWS. This file uses AWS Backup to:
-- Create a backup vault to store backup data.
-- Define a backup plan with a schedule and retention policy.
-- Automate backups of EC2 instances and EBS volumes.
-
-AWS Backup is a cost-effective and AWS-native solution for managing backups, ensuring critical resources are protected even if third-party tools like Veeam are unavailable.
+If Veeam Backup for AWS is not available or is not configured, you can use the `backup-plan.tf` file as a fallback or alternative to ensure that backups are still automated and managed directly via AWS.
 
 ---
 ### Step 8: Cleanup
