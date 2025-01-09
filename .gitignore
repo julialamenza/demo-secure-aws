@@ -1,0 +1,39 @@
+# Terraform state and backup files
+terraform.tfstate
+terraform.tfstate.backup
+*.tfstate
+*.tfstate.backup
+
+# Terraform variable files
+*.tfvars
+*.tfvars.json
+
+# Terraform CLI configuration
+.terraformrc
+terraform.rc
+
+# Terraform module and provider cache
+.terraform/
+
+# Crash logs
+crash.log
+
+# Ignore any sensitive output files
+*.pem
+*.key
+*.crt
+*.cer
+*.pfx
+
+# Ignore zip archives for Terraform modules or outputs
+*.zip
+
+# General sensitive files
+secrets.yaml
+secrets.json
+env.yaml
+.env
+
+# IDE-specific files (optional)
+.idea/
+.vscode/
