@@ -53,11 +53,11 @@ resource "aws_iam_policy" "ec2_policy" {
     Version = "2012-10-17"
     Statement = [
       {
-        Action   = [
+        Action = [
           "s3:ListBucket",
           "s3:GetObject"
         ]
-        Effect   = "Allow"
+        Effect = "Allow"
         Resource = [
           "arn:aws:s3:::example-bucket",
           "arn:aws:s3:::example-bucket/*"
@@ -78,21 +78,21 @@ resource "aws_cloudtrail" "trail" {
   include_global_service_events = true
   is_multi_region_trail         = true
   enable_logging                = true
- event_selector {
+  event_selector {
     read_write_type           = "All"
     include_management_events = true
 
     data_resource {
       type = "AWS::S3::Object"
       values = [
-        aws_s3_bucket.cloudtrail.arn
+        "${aws_s3_bucket.cloudtrail.arn}/"
       ]
     }
   }
 }
 
 resource "aws_s3_bucket" "cloudtrail" {
-  bucket = "cloudtrail-logs-${random_id.bucket_id.hex}"
+  bucket = "cloudtrail-logs-${random_id.bucket_suffix.hex}"
 
   tags = {
     Name = "CloudTrail Bucket"
@@ -101,7 +101,6 @@ resource "aws_s3_bucket" "cloudtrail" {
 
 resource "aws_s3_bucket_policy" "cloudtrail" {
   bucket = aws_s3_bucket.cloudtrail.bucket
-
   policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
@@ -110,7 +109,7 @@ resource "aws_s3_bucket_policy" "cloudtrail" {
         Principal = {
           Service = "cloudtrail.amazonaws.com"
         },
-        Action = "s3:PutObject",
+        Action   = "s3:PutObject",
         Resource = "${aws_s3_bucket.cloudtrail.arn}/*",
         Condition = {
           StringEquals = {
@@ -123,21 +122,19 @@ resource "aws_s3_bucket_policy" "cloudtrail" {
         Principal = {
           Service = "cloudtrail.amazonaws.com"
         },
-        Action = "s3:GetBucketAcl",
+        Action   = "s3:GetBucketAcl",
         Resource = aws_s3_bucket.cloudtrail.arn
       }
     ]
   })
 }
-
 resource "aws_s3_bucket_versioning" "cloudtrail" {
-  bucket = aws_s3_bucket.cloudtrail.bucket
-
+  bucket = "cloudtrail-logs-${random_id.bucket_suffix.hex}"
   versioning_configuration {
     status = "Enabled"
   }
 }
 
-resource "random_id" "bucket_id" {
+resource "random_id" "bucket_suffix" {
   byte_length = 8
 }
