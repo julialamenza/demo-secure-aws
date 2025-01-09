@@ -78,18 +78,18 @@ resource "aws_cloudtrail" "trail" {
   include_global_service_events = true
   is_multi_region_trail         = true
   enable_logging                = true
-    event_selector {
-    read_write_type = "All"
+ event_selector {
+    read_write_type           = "All"
     include_management_events = true
 
-    # Log all S3 bucket events
     data_resource {
       type = "AWS::S3::Object"
-      values = ["arn:aws:s3:::*"]
+      values = [
+        aws_s3_bucket.cloudtrail.arn
+      ]
     }
-    }
+  }
 }
-
 
 resource "aws_s3_bucket" "cloudtrail" {
   bucket = "cloudtrail-logs-${random_id.bucket_id.hex}"
