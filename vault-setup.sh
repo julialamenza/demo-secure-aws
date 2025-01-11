@@ -6,16 +6,31 @@ export VAULT_ADDR='http://127.0.0.1:8200'
 # Start Vault in Dev Mode
 if ! curl -s $VAULT_ADDR/v1/sys/seal-status > /dev/null; then
   echo "Starting Vault in dev mode..."
-  # Start Vault in dev mode and redirect output to a log file
+
+  # Ensure the log file exists
+  touch vault-dev.log
+
+  # Start Vault in dev mode and redirect output to the log file
   nohup vault server -dev > vault-dev.log 2>&1 &
-  sleep 5 # Wait for Vault to start
+
+  # Give some time for Vault to start
+  sleep 5
+
+  # Check if Vault is running
+  if ! pgrep -f "vault server -dev" > /dev/null; then
+    echo "Error: Vault process not running. Checking logs for details..."
+    cat vault-dev.log # Print the log for debugging
+    exit 1
+  fi
 fi
 
-# Check if the log file exists
+# Verify the log file exists
 if [ ! -f vault-dev.log ]; then
   echo "Error: vault-dev.log not found. Vault may not have started correctly."
   exit 1
 fi
+
+echo "Vault started successfully. Log file: vault-dev.log"
 
 # Extract Root Token from Logs
 ROOT_TOKEN=$(grep "Root Token:" vault-dev.log | awk '{print $3}')
@@ -30,7 +45,9 @@ vault login $ROOT_TOKEN
 
 # Enable AWS Secrets Engine
 echo "Enabling AWS Secrets Engine..."
-vault secrets enable aws || echo "AWS Secrets Engine already enabled."
+if ! vault secrets enable aws; then
+  echo "AWS Secrets Engine already enabled."
+fi
 
 # Configure AWS Secrets Engine
 echo "Configuring AWS Secrets Engine..."
@@ -45,6 +62,4 @@ vault write aws/roles/iam-role \
   credential_type=iam_user \
   policy_arns="arn:aws:iam::aws:policy/AdministratorAccess"
 
-
-echo "Vault setup  completed successfully."
-
+echo "Vault setup completed successfully."
