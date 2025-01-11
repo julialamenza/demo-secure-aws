@@ -17,7 +17,7 @@ This demo showcases how to secure AWS resources, remediate credential exposure, 
 - **Terraform**: [Download](https://www.terraform.io/downloads)
 - **Vault**: [Download](https://www.vaultproject.io/downloads)
 - **AWS CLI**: [Install](https://aws.amazon.com/cli/)
-- **Veeam Backup for AWS**: [Deployed and configured in the AWS account](https://helpcenter.veeam.com/docs/vbaws/guide/deployment.htm)
+- **Veeam Backup for AWS**: [Deployed and configured in the AWS account](https://community.veeam.com/cloud-city-107/deploy-veeam-backup-for-aws-with-terraform-5330)
 
 ### AWS Account Requirements:
 - Access to create and manage resources in AWS (IAM, EC2, S3, CloudTrail, etc.).
