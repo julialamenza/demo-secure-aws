@@ -1,34 +1,31 @@
-git#!/bin/bash
+#!/bin/bash
 
 # Set Vault Address
 export VAULT_ADDR='http://127.0.0.1:8200'
 
-# Check if Vault is already initialized
-if vault status | grep -q "Initialized.*true"; then
-  echo "Vault is already initialized. Proceeding to unseal..."
-else
-  echo "Initializing Vault..."
-  vault operator init > vault-init.txt
-
-  # Extract the unseal key and root token
-  UNSEAL_KEY=$(grep 'Unseal Key 1:' vault-init.txt | awk '{print $4}')
-  ROOT_TOKEN=$(grep 'Initial Root Token:' vault-init.txt | awk '{print $4}')
-
-  echo "Unseal Key and Root Token saved in vault-init.txt"
+# Start Vault in Dev Mode
+if ! curl -s $VAULT_ADDR/v1/sys/seal-status > /dev/null; then
+  echo "Starting Vault in dev mode..."
+  # Start Vault in dev mode and redirect output to a log file
+  nohup vault server -dev > vault-dev.log 2>&1 &
+  sleep 5 # Wait for Vault to start
 fi
 
-# Unseal Vault
-if [ -z "$UNSEAL_KEY" ]; then
-  UNSEAL_KEY=$(grep 'Unseal Key 1:' vault-init.txt | awk '{print $4}')
+# Check if the log file exists
+if [ ! -f vault-dev.log ]; then
+  echo "Error: vault-dev.log not found. Vault may not have started correctly."
+  exit 1
 fi
-echo "Unsealing Vault..."
-vault operator unseal $UNSEAL_KEY
+
+# Extract Root Token from Logs
+ROOT_TOKEN=$(grep "Root Token:" vault-dev.log | awk '{print $3}')
+if [ -z "$ROOT_TOKEN" ]; then
+  echo "Error: Could not extract root token. Check vault-dev.log."
+  exit 1
+fi
+echo "Root Token: $ROOT_TOKEN"
 
 # Login to Vault
-if [ -z "$ROOT_TOKEN" ]; then
-  ROOT_TOKEN=$(grep 'Initial Root Token:' vault-init.txt | awk '{print $4}')
-fi
-echo "Logging into Vault..."
 vault login $ROOT_TOKEN
 
 # Enable AWS Secrets Engine
@@ -40,12 +37,14 @@ echo "Configuring AWS Secrets Engine..."
 vault write aws/config/root \
   access_key="" \
   secret_key="" \
-  region="us-east-2" || exit 1
+  region="us-east-2"
 
 # Create Vault Role for AWS
 echo "Creating Vault Role..."
-vault write aws/roles/ec2-role \
+vault write aws/roles/iam-role \
   credential_type=iam_user \
-  policy_arns="arn:aws:iam::aws:policy/ReadOnlyAccess" || exit 1
+  policy_arns="arn:aws:iam::aws:policy/AdministratorAccess"
 
-echo "Vault setup completed successfully."
+
+echo "Vault setup  completed successfully."
+
