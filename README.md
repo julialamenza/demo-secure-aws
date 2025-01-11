@@ -65,15 +65,11 @@ This demo showcases how to secure AWS resources, remediate credential exposure, 
 
 3. Note the outputs for later use (e.g., instance ID, public IP).
 
-ps:
 ---
 
 ### Step 4: Set Up Vault
-1. Start Vault in dev mode:
-   ```bash
-   vault server -dev
-   ```
-2. Initialize and unseal Vault:
+
+1. Initialize and unseal Vault:
    ```bash
    ./vault-setup.sh
    ```
@@ -87,7 +83,7 @@ ps:
    ```
    vault status
    ```
-3. Verify AWS secrets engine setup in Vault:
+2. Verify AWS secrets engine setup in Vault:
    ```bash
    vault read aws/config/root
    ```
@@ -99,6 +95,7 @@ ps:
    ```bash
    ./simulate-exposure.sh
    ```
+
 2. Observe the actions (e.g., API calls using exposed credentials).
 
 ---
@@ -108,20 +105,12 @@ ps:
    ```bash
    ./remediation.sh
    ```
-2. Verify the new credentials by listing resources:
-   ```bash
-   aws s3 ls
-   ```
-
----
-
 ### Step 7: Configure Veeam Backup for AWS for Backup and Restore
 1. Create a backup policy for EC2 and EBS resources.
 
 2. Trigger a manual backup and verify it.
 
 3. Simulate a restore of the EC2 instance, EBS volume, or files to the same AWS account, a different account, or even another cloud provider.
-
 ---
 
 ### Use Case: `backup-plan.tf`
